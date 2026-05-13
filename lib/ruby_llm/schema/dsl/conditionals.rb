@@ -8,6 +8,18 @@ module RubyLLM
           @conditions ||= []
         end
 
+        def merge_conditions(schema, schema_class)
+          return schema unless schema_class.respond_to?(:conditions) && schema_class.conditions.any?
+
+          if schema_class.conditions.length == 1
+            schema.merge!(schema_class.conditions.first)
+          else
+            schema[:allOf] = schema_class.conditions
+          end
+
+          schema
+        end
+
         def require_if(property, equals:, &block)
           builder = ConditionalBuilder.new
           builder.instance_eval(&block)
